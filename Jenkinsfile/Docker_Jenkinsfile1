@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git(
-                    url: "https://github.com/johngit1991/Hello_world.git",
+                    url: "https://github.com/johngit1991/maven-project.git",
                     credentialsId: 'Git',
                     branch: 'master'
                  )
@@ -18,8 +18,8 @@ pipeline {
      
                 stage ('maven build'){
                   steps {
-                      sh 'mvn clean install package'
-		      sh 'cp /var/lib/jenkins/workspace/Docker_pipeline_1/webapp/target/webapp.war .'
+                      sh 'mvn clean install package deploy'
+		      sh 'cp /var/lib/jenkins/workspace/Docker_pipeline_2/webapp/target/*.war .'
 				        }
 				      }
        
