@@ -19,7 +19,7 @@ pipeline {
                 stage ('maven build'){
                   steps {
                       sh 'mvn clean install package deploy'
-		      sh 'cp /var/lib/jenkins/workspace/Docker_pipeline_2/webapp/target/*.war .'
+		      sh 'cp /var/lib/jenkins/workspace/Docker_pipeline_2/target/*.war .'
 				        }
 				      }
        
