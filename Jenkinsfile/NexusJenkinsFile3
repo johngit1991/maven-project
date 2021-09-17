@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+    stages {
+        
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/maven-project.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                 )
+             }
+        }
+     
+                stage ('maven build'){
+                  steps {
+                      sh 'mvn clean install package deploy'
+				        }
+				      }
+         
+         }
+        } 
