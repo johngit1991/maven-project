@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: yes
+  gather_facts: no
+  tasks: 
+    - include_tasks: AnsibleSampleapp_dockerimage.yml
+    - include_tasks: AnsibleSampleapp_deployment.yml
+    - include_tasks: AnsibleSampleapp_service.yml

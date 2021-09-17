@@ -1,0 +1,15 @@
+---
+- hosts: localhost,all
+  connection: local
+  gather_facts: no
+  vars_files:
+    - /root/.jenkins/workspace/Ansible_pipeline/configuration/master/project_configuration.yml
+   #- "{{ workdir }} / {{ inventory_name }}"
+  #tasks:
+    #- name: Print message
+      #debug: msg="Hello to {{workdir}}/{{inventory_name}}, from Ansible!!"  
+  include_tasks: 
+    - AnsibleSampleapp_dockerimage.yml
+    - AnsibleSampleapp_Helmdeployment.yml 
+  #roles:
+  #  - { role: role }

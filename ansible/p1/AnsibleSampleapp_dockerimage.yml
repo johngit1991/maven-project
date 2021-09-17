@@ -1,0 +1,13 @@
+
+  - name: create docker image using war file
+    command: docker build -t pradeep9795/docker-test -f /root/devops/git/Hello_world/DockerFile/sampleapp.Dockerfile .
+    #command: docker build -t pradeep9795/docker-test -f sampleapp.Dockerfile .
+    #args:
+     #chdir: Dockerfile
+
+  - name: push image on to dockerhub
+    command: docker push pradeep9795/docker-test
+
+  - name: remove docker images form ansible server
+    command: docker rmi pradeep9795/docker-test
+    ignore_errors: yes

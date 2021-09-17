@@ -1,0 +1,17 @@
+---
+ - name: create service for deployaent
+   hosts: localhost
+   become: true
+
+   tasks:
+    
+    - name: Uninstalling existing Helm Chart
+      command: helm delete sampleapphelm
+      args:
+       chdir: /root/devops/git/Hello_world/sampleapphelm/
+      ignore_errors: yes
+   
+    - name: Installing Helm Chart
+      command: helm install sampleapphelm .
+      args:
+       chdir: /root/devops/git/Hello_world/sampleapphelm/

@@ -1,0 +1,5 @@
+
+    - name: create a service
+      command: kubectl apply -f /root/devops/git/Hello_world/kubernetes/service/sampleapp_service.yml
+      #args:
+      #chdir: /root/devops/git/hello-world
