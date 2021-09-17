@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    environment {
+    registry = "pradeep9795/docker-test"
+    registryCredential = 'Docker_Credential'
+    dockerImage = ''
+  }
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                 )
+            }
+        }
+        
+       
+    stage('Building image') {
+      steps{
+        script {
+	  dockerImage = docker.build registry
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+         script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry"
+       }
+      }
+   }
+}

@@ -1,0 +1,19 @@
+@Library('JenkinsLiberary') _
+pipeline {  
+    agent any  
+    stages {   
+        stage('Clone') {    
+            steps { 
+                 url: "https://github.com/johngit1991/Hello_world.git",
+                 credentialsId: 'Git',
+                 branch: 'dev' 
+                }   
+        }   
+        stage('Compile') {    
+            steps {     
+                  sh(libraryResource('input/python.sh'))
+            }   
+            
+        }  
+        
+    } 

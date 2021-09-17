@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    environment {
+    registry = "pradeep9795/docker-test"
+    registryCredential = 'Docker_Credential'
+    dockerImage = ''
+  }
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                 )
+            }
+        }
+     
+                stage ('maven build'){
+                  steps {
+                      sh 'mvn clean install package'
+		      sh 'cp /var/lib/jenkins/workspace/Job_2/webapp/target/webapp.war .'
+				        }
+				      }
+       
+    stage('Building image') {
+      steps{
+        script {
+	  dockerImage = docker.build registry
+        }
+      }
+    }
+    
+        stage('Deploy Image') {
+      steps{
+         script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    
+	stage('Run Docker Image In Tomcat Server') {
+                                  steps {
+				  withDockerRegistry(credentialsId: registryCredential, url: ''){
+				     sh 'docker stop $registry || true'
+				     sh 'docker rm -f $registry || true'
+				     sh 'docker image rm -f $registry|| true'
+             sh 'docker run -d --name demojenkinsdocker -p 8090:8080 $registry'
+     }
+     }
+     }
+     
+              
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi -f $registry || true"
+       }
+      }
+   }
+}

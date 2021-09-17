@@ -1,0 +1,58 @@
+pipeline {
+    //parameters {
+        //choice(name: 'env', choices: ['master','qa'], description: 'Environment for deployment')
+   // }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+    }
+
+    agent any
+     stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: '${env}'
+                )
+            }
+        }
+        
+        stage("Ansible Stage") {
+            steps {
+                script {
+                    def ansible_dir = "ansible"
+                    def playbookname = 'bootfile.yml'
+                    def workspace = pwd()
+                    def inventory = 'localhost,all'
+                    def inventory_name = "configuration/${params.env}/project-configuration.yml"     
+                    withCredentials([
+                        usernamePassword(credentialsId: 'Git', usernameVariable: 'GIT_LOGIN', passwordVariable: 'Git_pwd'),
+                        string(credentialsId: 'ansible_vault', variable: 'ansible_vault') ]){
+                        
+                        dir ("${ansible_dir}") {
+                            
+                        ansiblePlaybook( 
+                        colorized: true,
+                        playbook: "${playbookname}",
+                        inventory: "${inventory}",
+                        extraVars: [
+                            BUILD_NUMBER: '${BUILD_NUMBER}',
+                            inventory_name: "${inventory_name}",
+                            ansible_vault: '${ansible_vault}',
+                            workdir: '${WORKSPACE}',
+                            git_user_name: '${GIT_LOGIN}',
+                            git_password: '${Git_pwd}'
+                        ]) 
+                            
+                        }
+                    }
+                }
+            }
+        }      
+    }
+}

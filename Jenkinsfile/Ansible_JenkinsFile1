@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    environment {
+    registry = "pradeep9795/docker-test"
+    registryCredential = 'Docker_Credential'
+    dockerImage = ''
+  }
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                 )
+            }
+        }
+     
+                stage ('maven build'){
+                  steps {
+                      sh 'mvn clean install package'
+		      sh 'cp /var/lib/jenkins/workspace/Ansible_pipeline_1/webapp/target/webapp.war .'
+				        }
+				      }
+				      
+	              stage('Ansible Steps') {
+                                  steps {
+				           ansiblePlaybook credentialsId: 'private-key', playbook: 'ansible/p1/main.yml'
+					   //ansiblePlaybook playbook: 'ansible/p1/main.yml'
+					   //ansiblePlaybook credentialsId: 'private-key', playbook: 'ansible/p1/main.yml'
+					   //ansiblePlaybook become: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: 'hosts', playbook: 'ansible/p1/main.yml'
+					   //ansiblePlaybook become: true, playbook: 'ansible/P2/main1.yml', sudoUser: osboxes.org
+					   //ansiblePlaybook become: true, credentialsId: 'ansible_id', installation: 'ansible', playbook: 'ansible/P2/main1.yml', sudoUser: null
+					   //sh "ansible-playbook ansible/p1/main.yml -i ansible/p1/hosts"
+					   //sh "ansible-playbook ansible/p1/main.yml credentialsId:'private-key'"
+					   //sh "ansible-playbook ansible/p1/main.yml -i ansible/p1/hosts"
+					   //sh "ansible-playbook ansible/p1/main.yml"
+					   //sh "ansible-playbook ansible/P2/main.yml --user=root -e 'ansible_sudo_pass=osboxes.org'"
+					   //sh 'ansible-playbook ansible/p1/AnsibleSampleapp_dockerimage.yml -e ansible_become_pass=osboxes.org'
+					   //sh 'ansible-playbook ansible/p1/AnsibleSampleapp_deployment.yml'
+					   //sh 'ansible-playbook ansible/p1/AnsibleSampleapp_service.yml'
+     }
+     }
+     
+   }
+}

@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    environment {
+    registry = "pradeep9795/docker-test"
+    registryCredential = 'Docker_Credential'
+    dockerImage = ''
+  }
+    stages {
+    
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                 )
+            }
+        }
+ 
+                stage ('maven build'){
+                  steps {
+                      sh 'mvn clean install package'
+		      sh 'cp /var/lib/jenkins/workspace/Docker_pipeline_1/webapp/target/webapp.war .'
+				        }
+				      }
+              
+        stage("Ansible Stage") {
+            steps {
+                script {
+                    def ansible_dir = "ansible/p1"
+                    def playbookname = 'main.yml'
+                    def workspace = pwd()
+                    def inventory = 'localhost'                           
+                        dir ("${ansible_dir}") {                           
+                        ansiblePlaybook( 
+                        colorized: true,
+                        playbook: "${playbookname}",
+                        inventory: "${inventory}",
+                        extraVars: [
+                            workdir: '${WORKSPACE}'
+                        ]) 
+                            
+                        }
+                    }
+                }
+            }
+         } 
+     } 

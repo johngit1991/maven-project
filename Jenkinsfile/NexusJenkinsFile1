@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+        environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "localhost:8081"
+        NEXUS_REPOSITORY = "maven-releases"
+        NEXUS_CREDENTIAL_ID = "nexus-credentials"
+        NEXUS_GROUP_ID = "com.example.maven-project"
+        Version = "1.0-SNAPSHOT"	
+	}
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: "https://github.com/johngit1991/Hello_world.git",
+                    credentialsId: 'Git',
+                    branch: 'master'
+                )
+            }
+        }
+        
+          stage ('maven build'){
+                  steps {
+                      sh 'mvn clean install package'
+				        }
+				      }	
+        
+        stage("publish to nexus") {
+            steps {
+                script {
+                        nexusArtifactUploader(
+                            nexusVersion: NEXUS_VERSION,
+                            protocol: NEXUS_PROTOCOL,
+                            nexusUrl: NEXUS_URL,
+                            groupId: NEXUS_GROUP_ID,
+                            version: Version,
+                            repository: NEXUS_REPOSITORY,
+                            credentialsId: NEXUS_CREDENTIAL_ID,
+                            artifacts: [
+                                // Artifact generated such as .jar, .ear and .war files.
+                                [artifactId: 'webapp',
+                                classifier: '',
+                                file: "webapp/target/webapp.war",
+                                type:"war"]
+                            ]
+                        );
+
+                    } 
+                }
+            }
+        
+        
+        stage('Fetch EAR from nexus') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
+                    dir ('DockerFile') {
+                        script {
+                            sh """
+                            curl -fsSL -u ${nexus_user}:${nexus_password} -O http://localhost:8081/repository/maven-releases/com.example.maven-project/maven-project/*.war
+                            """
+                        }      
+                    }
+                }
+            }
+        }
+        
+        stage('Build image') {
+            steps {
+                dir ('DockerFile') {           
+                    script {
+                        def appImage = docker.build("pradeep9795/demojenkinsdocker"," -f ./sampleapp.Dockerfile .")
+                        docker.withRegistry('', 'docker_credentials'){
+                            appImage.push()
+                        }
+                    }
+                }
+            }
+       }
+       
+          stage('Run Docker Image In Tomcat Server') {
+                                  steps {
+				  withDockerRegistry(credentialsId: 'docker_credentials', url: ''){
+				     sh 'docker stop demojenkinsdocker || true'
+				     sh 'docker rm -f demojenkinsdocker || true'
+				     sh 'docker image rm -f pradeep9795/demojenkinsdocker || true'
+             sh 'docker run -d --name demojenkinsdocker -p 8090:8080 pradeep9795/demojenkinsdocker'
+     }
+     }
+     }
+       
+       
+    }  
+    }
