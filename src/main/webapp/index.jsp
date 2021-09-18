@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>Release 1.0.0: Welcome to hello world!!</h2>
+<h2> 1.0.SNAPSHOT: 1. Welcome to hello world!!</h2>
 </body>
 </html>
